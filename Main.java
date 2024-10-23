@@ -1,42 +1,45 @@
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    static final int MOD = 1000000007;
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader("input.txt"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int N = scanner.nextInt();
-        int K = scanner.nextInt();
-        scanner.close();
+        int s = Integer.parseInt(reader.readLine().trim());
+        int[] dimensions = new int[s + 1];
 
-        if (K > N) {
-            System.out.println(0);
-            return;
-        }
-
-        long[] factorial = new long[N + 1];
-        factorial[0] = 1;
-        for (int i = 1; i <= N; i++) {
-            factorial[i] = factorial[i - 1] * i % MOD;
-        }
-
-        long result = (factorial[N] * modInverse(factorial[K], MOD) % MOD) * modInverse(factorial[N - K], MOD) % MOD;
-        System.out.println(result);
-    }
-
-    public static long modInverse(long a, long p) {
-        return power(a, p - 2, p);
-    }
-
-    public static long power(long a, long b, long p) {
-        long result = 1;
-        while (b > 0) {
-            if (b % 2 == 1) {
-                result = result * a % p;
+        for (int i = 0; i < s; i++) {
+            String[] parts = reader.readLine().split(" ");
+            int rows = Integer.parseInt(parts[0]);
+            int cols = Integer.parseInt(parts[1]);
+            if (i == 0) {
+                dimensions[i] = rows;
             }
-            a = a * a % p;
-            b /= 2;
+            dimensions[i + 1] = cols;
         }
-        return result;
+        reader.close();
+
+        int[][] dp = new int[s][s];
+        for (int i = 0; i < s; i++) {
+            Arrays.fill(dp[i], Integer.MAX_VALUE);
+        }
+
+        for (int i = 0; i < s; i++) {
+            dp[i][i] = 0;
+        }
+
+        for (int length = 2; length <= s; length++) {
+            for (int i = 0; i <= s - length; i++) {
+                int j = i + length - 1;
+                for (int k = i; k < j; k++) {
+                    int cost = dp[i][k] + dp[k + 1][j] + dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
+                    dp[i][j] = Math.min(dp[i][j], cost);
+                }
+            }
+        }
+
+        writer.write(dp[0][s - 1] + "\n");
+        writer.close();
     }
 }
