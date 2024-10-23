@@ -14,22 +14,29 @@ public class Main {
             return;
         }
 
-        System.out.println(binomialCoeff(N, K));
+        long[] factorial = new long[N + 1];
+        factorial[0] = 1;
+        for (int i = 1; i <= N; i++) {
+            factorial[i] = factorial[i - 1] * i % MOD;
+        }
+
+        long result = (factorial[N] * modInverse(factorial[K], MOD) % MOD) * modInverse(factorial[N - K], MOD) % MOD;
+        System.out.println(result);
     }
 
-    public static long binomialCoeff(int N, int K) {
-        if (K > N - K) {
-            K = N - K;  // Use symmetry property
-        }
-        long[] dp = new long[K + 1];
-        dp[0] = 1;
+    public static long modInverse(long a, long p) {
+        return power(a, p - 2, p);
+    }
 
-        for (int i = 1; i <= N; i++) {
-            for (int j = Math.min(i, K); j > 0; j--) {
-                dp[j] = (dp[j] + dp[j - 1]) % MOD;
+    public static long power(long a, long b, long p) {
+        long result = 1;
+        while (b > 0) {
+            if (b % 2 == 1) {
+                result = result * a % p;
             }
+            a = a * a % p;
+            b /= 2;
         }
-
-        return dp[K];
+        return result;
     }
 }
